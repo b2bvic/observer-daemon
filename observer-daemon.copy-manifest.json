@@ -1,0 +1,104 @@
+{
+  "source_path": "../../observer-daemon",
+  "generated_timestamp": "2026-07-25T01:34:32.057007Z",
+  "file_count": 24,
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "44c92e3a70ad3307b7056871c2bdb096d8bfa9373f5bf06a79bb6324a20ff2fb"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "fad4f6b0c9552e6493e03f8e2c95a9f65b6168e5aeab7fd3eb5b66e1f88bbb33"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "9157d0a0678494aa61047ce0a614ea0ce000a39e8ce76af362e562aaaf86c7ca"
+    },
+    {
+      "path": "spec.toml.example",
+      "sha256": "39f2529e9a5612660e8a0bd4832b4f3db49ce690859be9ff4b8fbce12764d412"
+    },
+    {
+      "path": "src/config.rs",
+      "sha256": "3b225fbd50f36a46f8ea6f6138e136239032b00175147b70f4c8505a7ff06a59"
+    },
+    {
+      "path": "src/corrections.rs",
+      "sha256": "69680c4bc6ccf86941a62d059efcde9eb19ef1d8c82d4ae1de9a078620e88d48"
+    },
+    {
+      "path": "src/main.rs",
+      "sha256": "60523d89c0011aa2e557e7d35e385c221804bc823bf542fe9455da2f4e786d33"
+    },
+    {
+      "path": "src/rubric.rs",
+      "sha256": "ac93e072fb887d14dab8e1be283ddafda229cb962ebcb5463b082c7345c12378"
+    },
+    {
+      "path": "src/session.rs",
+      "sha256": "15593e74adf0788caca3a56ee7cee21099e3e66d33f43f08344693103e7f8cb6"
+    },
+    {
+      "path": "src/validator.rs",
+      "sha256": "fc1f0ee632914847f14e4dc8c1d3eb141d320d6d5bf077c1a343df91ba68d43b"
+    },
+    {
+      "path": "src/validators/badverbs.rs",
+      "sha256": "6dcfc4b8caa52421c0874ea5a498ba8de94036566380fb4c130e5fcca007e89d"
+    },
+    {
+      "path": "src/validators/context_time.rs",
+      "sha256": "6f2e567bc63d3153cf9379d166c316896ffa1670ebde4ce3c19644bddb9c6657"
+    },
+    {
+      "path": "src/validators/crutch.rs",
+      "sha256": "83aa63ce860877314cfb090a6d48536a800f5d06232be3a63eb196bbb406af20"
+    },
+    {
+      "path": "src/validators/filler.rs",
+      "sha256": "796da869ac790e35bf1270adb260677955b2f958620ea3393c246ad37328e3b5"
+    },
+    {
+      "path": "src/validators/floate.rs",
+      "sha256": "a60087e5c8a33ac557a204faa1609362f43369a147c3a3c93a1f881f2aa50ef8"
+    },
+    {
+      "path": "src/validators/layers.rs",
+      "sha256": "8245d7c32d6b612fd8814b505d35911f4d33581767d779a87871ee61e47e40a1"
+    },
+    {
+      "path": "src/validators/lexical.rs",
+      "sha256": "c78b251d37e8a40aef9a85aa3368e78af5756b35f6605a190a5c66489f1aa893"
+    },
+    {
+      "path": "src/validators/mod.rs",
+      "sha256": "c836654b3e93cdf141b210b723366014daa2fe6007d401e4570b51f0332e172d"
+    },
+    {
+      "path": "src/validators/policy_pack.rs",
+      "sha256": "303d9c81916a1eb708e891ef7f9c367cfcb23183866b9fc07d5913e3b407cfd1"
+    },
+    {
+      "path": "src/validators/punctuation.rs",
+      "sha256": "89b0e2f0d3442991d6110eee76d6bd1c09a2bd27610b87ac704dbfa5a5390f8a"
+    },
+    {
+      "path": "src/validators/rhythm.rs",
+      "sha256": "e07b3364d7d6be27ac98d51c87608ec132213f708a6f5c991ed789c14bf80eca"
+    },
+    {
+      "path": "src/validators/sycophancy.rs",
+      "sha256": "d6db8c1ba812d651a84fd997572c4224241966370162e0c715b3e046906514c9"
+    },
+    {
+      "path": "src/validators/tells.rs",
+      "sha256": "c2e0f60648e2218a8654c96e9e42e6af035c8cb63b48d2e59e0ca1f8dbdb7e97"
+    },
+    {
+      "path": "src/watcher.rs",
+      "sha256": "5b5cb45796556fe0366f63fd995052b27ffa48314ccd83697a692e83760cf6e0"
+    }
+  ],
+  "scope_note": "Candidate files after release scrub; manifest and allowlist excluded from recursive hashing."
+}
