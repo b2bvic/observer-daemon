@@ -20,7 +20,7 @@ Prompts drift and get truncated; a standard enforced outside the model's context
 Feed it a transcript directory and a spec:
 
 ```
-cargo run -- --spec spec.toml
+cargo run -- --daemon --config spec.toml
 ```
 
 Write a response containing "I hope this helps! Let me know if you'd like me to elaborate" into a watched path. The validation ledger records the sycophancy and filler deductions with the exact phrases, the score, and the content class that selected the rubric. Correct it, and the correction ledger holds the before and after as a durable example.
