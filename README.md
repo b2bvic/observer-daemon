@@ -1,8 +1,22 @@
 # observer-daemon
 
-A voice-enforcement daemon. It watches session transcripts, scores every response against a written behavioral standard, and turns each failure into a logged, correctable record. Voice stops being something you police by hand and becomes something the system holds for you.
+You can miss repeated writing-rule violations when you review agent responses by hand. Use observer-daemon to score transcripts and record failures outside the model.
 
-Part of a larger system: this repository proves **P11 (voice is a written standard)** and **P17 (the system learns through correction)** from the [Seventeen Principles](https://victorvalentineromo.com/principles). The written standard itself is documented in [observer-protocol](https://github.com/b2bvic/observer-protocol).
+Install with Rust and Cargo:
+
+```bash
+cargo install --git https://github.com/b2bvic/observer-daemon.git --locked
+```
+
+Sample output from `observer-daemon --config spec.toml --validate "The file is ready."` when no rules fail:
+
+```text
+Class: generic
+Score: 100/100
+No violations.
+```
+
+Your rules determine the score. Configure `spec.toml` before you run the command. Transcript scoring alone does not block an outbound action.
 
 ## What it does
 
@@ -13,7 +27,7 @@ Part of a larger system: this repository proves **P11 (voice is a written standa
 
 ## Why a daemon and not a prompt
 
-Prompts drift and get truncated; a standard enforced outside the model's context cannot be talked out of. The daemon is the mechanical half of a two-part contract: the model generates, the daemon verifies against the operator's recorded taste. Failures compound into the standard instead of evaporating (P17).
+Prompts drift and get truncated; a standard enforced outside the model's context cannot be talked out of. The daemon is the mechanical half of a two-part contract: the model generates, the daemon verifies against the operator's recorded taste. Failures compound into the standard instead of evaporating.
 
 ## Worked example
 
@@ -32,3 +46,7 @@ Write a response containing "I hope this helps! Let me know if you'd like me to 
 ## How this was built
 
 Specification, taxonomy, priorities, and the behavioral standard: human judgment, mine. Implementation: AI models executing that specification under a build contract with an adversarial audit before publish. The correction-ledger design ships here; my personal correction content does not. All fixtures are synthetic.
+
+## Principles
+
+Part of a larger system: this repository proves **P11 (voice is a written standard)** and **P17 (the system learns through correction)** from the [Seventeen Principles](https://victorvalentineromo.com/principles). The written standard itself is documented in [observer-protocol](https://github.com/b2bvic/observer-protocol).
