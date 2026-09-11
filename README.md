@@ -27,7 +27,8 @@ Your rules determine the score. Configure `spec.toml` before you run the command
 
 ## Why a daemon and not a prompt
 
-Prompts drift and get truncated; a standard enforced outside the model's context cannot be talked out of. The daemon is the mechanical half of a two-part contract: the model generates, the daemon verifies against the operator's recorded taste. Failures compound into the standard instead of evaporating.
+You run the same configured writing checks outside each model's prompt. The checks record rule matches and deductions.
+A model upgrade does not change those rules. You must review rules and examples when your requirements change.
 
 ## Worked example
 
@@ -42,6 +43,37 @@ Write a response containing "I hope this helps! Let me know if you'd like me to 
 ## Configuration
 
 `spec.toml.example` documents the full surface: watch paths, debounce, ledger locations, scoring thresholds, and the policy pack (blocked literals and regexes with per-issue deductions). Copy it to `spec.toml` and point the paths at your own transcript locations.
+
+## What a score proves
+
+A score measures the configured writing rules on the text supplied to the validator.
+A score of 100 does not verify facts, completed work, safety, or permission to act.
+A failing score can also flag acceptable quotations or task-specific language. Review such cases before changing the rule.
+
+Use separate checks for separate claims:
+
+| Claim | Evidence you need |
+|---|---|
+| The response follows your writing rules | The response, configuration, score, and matched rules. |
+| A file contains the expected result | The actual file and a content or hash check. |
+| The tested source is installed | Matching source revisions or installed file hashes. |
+| An external action succeeds | A result from the destination system. |
+| An action is authorized | Approval enforced where the action executes. |
+
+The [completion-check skill](https://github.com/b2bvic/skills) checks declared local artifacts and source revisions.
+It does not verify external outcomes or grant action approval.
+
+## Compatibility and regression checks
+
+The one-shot validator accepts text independently of the model that produces it.
+Native transcript ingestion depends on the transcript format and watcher configuration.
+The daemon currently identifies Codex JSONL through a `/.codex/sessions/` path segment.
+Renamed exports and archived Codex paths are not covered by that detection rule.
+The parser does not retain prompt context between separate read batches. Use one-shot validation with an explicit prompt when that context matters.
+
+Run `cargo test --locked` for the synthetic regression suite.
+These tests check implementation behavior. They do not measure model quality or guarantee support for future transcript schemas.
+See the [stack evaluation guide](https://github.com/b2bvic/agent-oversight/blob/main/EVALUATION.md) before comparing model versions.
 
 ## How this was built
 
