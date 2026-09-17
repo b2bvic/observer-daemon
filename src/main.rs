@@ -7,7 +7,7 @@ mod validators;
 mod watcher;
 
 use rubric::{ClassificationMetadata, ContentClass};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -164,6 +164,7 @@ fn run_daemon(mut spec: config::Spec, config_path: PathBuf) {
     let _ = signal_hook::flag::register(signal_hook::consts::SIGTERM, Arc::clone(&shutdown));
     let _ = signal_hook::flag::register(signal_hook::consts::SIGINT, Arc::clone(&shutdown));
     let mut prior_responses = Vec::<String>::new();
+    let mut jsonl_states = HashMap::<PathBuf, session::JsonlParserState>::new();
 
     log::info!(
         "Daemon watching {} configured paths",
@@ -208,6 +209,7 @@ fn run_daemon(mut spec: config::Spec, config_path: PathBuf) {
                 process_jsonl(
                     &path,
                     &mut file_watcher,
+                    jsonl_states.entry(path.clone()).or_default(),
                     &mut prior_responses,
                     &mut promoted_rules,
                     &spec,
@@ -237,6 +239,7 @@ fn run_daemon(mut spec: config::Spec, config_path: PathBuf) {
 fn process_jsonl(
     path: &Path,
     file_watcher: &mut watcher::FileWatcher,
+    state: &mut session::JsonlParserState,
     prior_responses: &mut Vec<String>,
     promoted_rules: &mut Vec<corrections::PromotedRule>,
     spec: &config::Spec,
@@ -245,22 +248,16 @@ fn process_jsonl(
     patterns_path: &Path,
 ) {
     let offset = file_watcher.get_offset(path);
-    let Ok((lines, new_offset)) = session::read_new_lines(path, offset) else {
-        return;
+    let batch = match session::ingest_jsonl_file(path, offset, state) {
+        Ok(batch) => batch,
+        Err(error) => {
+            log::warn!("Cannot read transcript {}: {error}", path.display());
+            return;
+        }
     };
-    file_watcher.set_offset(path.to_path_buf(), new_offset);
-    let is_responses_format = path.to_string_lossy().contains("/.codex/sessions/");
-    let session_id = session::codex_session_id_from_path(path);
-    let messages = if is_responses_format {
-        session::extract_codex_messages(&lines, &session_id)
-    } else {
-        session::extract_assistant_messages(&lines)
-    };
-    let source = if is_responses_format {
-        "responses-jsonl"
-    } else {
-        "message-jsonl"
-    };
+    file_watcher.set_offset(path.to_path_buf(), batch.new_offset);
+    let source = session::jsonl_source(state);
+    let messages = batch.messages;
 
     for message in messages {
         let result = validator::validate_response_with_metadata(

@@ -67,9 +67,13 @@ It does not verify external outcomes or grant action approval.
 
 The one-shot validator accepts text independently of the model that produces it.
 Native transcript ingestion depends on the transcript format and watcher configuration.
-The daemon currently identifies Codex JSONL through a `/.codex/sessions/` path segment.
-Renamed exports and archived Codex paths are not covered by that detection rule.
-The parser does not retain prompt context between separate read batches. Use one-shot validation with an explicit prompt when that context matters.
+The daemon detects Claude Code and Codex records from JSONL content, including renamed and archived exports in configured watch paths.
+Each file retains its user prompt, working directory, and session identifier across read batches and configuration reloads.
+Codex identifiers come from `session_meta.payload.id` when present. Otherwise, the filename supplies a fallback.
+Incomplete final lines wait for a newline. Detected truncation or file replacement resets that file's parser state.
+Use append-only files. Same-inode rewrites that reach the previous length before observation can evade truncation detection.
+Only supported message records produce scores. Codex `event_msg` mirrors do not produce duplicate scores; event-only exports are not scored.
+Parser state is in memory. A daemon restart can replay existing records when a file next changes.
 
 Run `cargo test --locked` for the synthetic regression suite.
 These tests check implementation behavior. They do not measure model quality or guarantee support for future transcript schemas.

@@ -64,20 +64,8 @@ impl FileWatcher {
                                 continue;
                             }
 
-                            // Debounce
-                            if let Some(last) = self.last_event.get(&path) {
-                                if now.duration_since(*last)
-                                    < Duration::from_millis(self.debounce_ms)
-                                {
-                                    continue;
-                                }
-                            }
-
+                            // Retain every event until the file has been quiet.
                             self.last_event.insert(path.clone(), now);
-
-                            if !changed.contains(&path) {
-                                changed.push(path);
-                            }
                         }
                     }
                     _ => {}
@@ -85,6 +73,14 @@ impl FileWatcher {
             }
         }
 
+        self.last_event.retain(|path, last| {
+            if now.duration_since(*last) >= Duration::from_millis(self.debounce_ms) {
+                changed.push(path.clone());
+                false
+            } else {
+                true
+            }
+        });
         changed
     }
 
@@ -103,11 +99,8 @@ impl FileWatcher {
     pub fn restore_offsets(&mut self, previous: &HashMap<PathBuf, u64>) {
         for (path, offset) in previous {
             if path.exists() {
-                let bounded = match std::fs::metadata(path) {
-                    Ok(meta) => (*offset).min(meta.len()),
-                    Err(_) => *offset,
-                };
-                self.offsets.insert(path.clone(), bounded);
+                // Keep the old offset so ingestion can detect truncation after reload.
+                self.offsets.insert(path.clone(), *offset);
             }
         }
     }
@@ -120,7 +113,7 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn restore_offsets_caps_to_current_file_length() {
+    fn restore_offsets_preserves_truncation_signal() {
         let dir = std::env::temp_dir().join(format!("observer-daemon-{}", std::process::id()));
         std::fs::create_dir_all(&dir).expect("temp dir");
         let file = dir.join("session.jsonl");
@@ -132,9 +125,31 @@ mod tests {
 
         watcher.restore_offsets(&previous);
 
-        assert_eq!(watcher.get_offset(&file), 3);
+        assert_eq!(watcher.get_offset(&file), 999);
 
         let _ = std::fs::remove_file(&file);
         let _ = std::fs::remove_dir(&dir);
+    }
+    #[test]
+    fn debounce_retains_final_event_until_quiet() {
+        let mut watcher = FileWatcher::new(&[], 500).unwrap();
+        let (tx, rx) = std::sync::mpsc::channel();
+        watcher.rx = rx;
+        let path = PathBuf::from("fixture.jsonl");
+        tx.send(Ok(notify::Event::new(notify::EventKind::Any)))
+            .unwrap();
+        tx.send(Ok(notify::Event::new(notify::EventKind::Create(
+            notify::event::CreateKind::File,
+        ))
+        .add_path(path.clone())))
+            .unwrap();
+        assert!(watcher.poll().is_empty());
+        assert!(watcher.last_event.contains_key(&path));
+        watcher.last_event.insert(
+            path.clone(),
+            std::time::Instant::now() - std::time::Duration::from_secs(1),
+        );
+        assert_eq!(watcher.poll(), vec![path]);
+        assert!(watcher.poll().is_empty());
     }
 }

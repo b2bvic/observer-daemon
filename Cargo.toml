@@ -1,6 +1,6 @@
 [package]
 name = "observer-daemon"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Behavioral validator daemon for Observer Protocol"
 authors = ["Victor Valentine Romo <victor@scalewithsearch.com>"]
