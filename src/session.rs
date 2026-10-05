@@ -9,6 +9,13 @@ pub struct AssistantMessage {
     pub text: String,
     pub session_id: String,
     pub prompt: String,
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "Parser metadata is retained and covered by ingestion regressions"
+        )
+    )]
     pub cwd: String,
     pub metadata: ClassificationMetadata,
 }
@@ -117,10 +124,10 @@ fn claude_assistant_text(val: &Value) -> Option<String> {
     let mut text_parts = Vec::new();
     for block in blocks {
         let block_type = block.get("type").and_then(|t| t.as_str()).unwrap_or("");
-        if block_type == "text" {
-            if let Some(text) = block.get("text").and_then(|t| t.as_str()) {
-                text_parts.push(text);
-            }
+        if block_type == "text"
+            && let Some(text) = block.get("text").and_then(|t| t.as_str())
+        {
+            text_parts.push(text);
         }
     }
     if text_parts.is_empty() {
@@ -179,10 +186,10 @@ fn ingest_codex_line(val: &Value, state: &mut JsonlParserState) -> Option<Assist
             if let Some(cwd) = payload.get("cwd").and_then(|c| c.as_str()) {
                 state.cwd = cwd.to_string();
             }
-            if let Some(id) = payload.get("id").and_then(|c| c.as_str()) {
-                if !id.is_empty() {
-                    state.native_session_id = id.to_string();
-                }
+            if let Some(id) = payload.get("id").and_then(|c| c.as_str())
+                && !id.is_empty()
+            {
+                state.native_session_id = id.to_string();
             }
         }
         return None;
@@ -203,10 +210,10 @@ fn ingest_codex_line(val: &Value, state: &mut JsonlParserState) -> Option<Assist
     let mut text_parts = Vec::new();
     for block in content {
         let block_type = block.get("type").and_then(|t| t.as_str()).unwrap_or("");
-        if matches!(block_type, "input_text" | "output_text" | "text") {
-            if let Some(text) = block.get("text").and_then(|t| t.as_str()) {
-                text_parts.push(text);
-            }
+        if matches!(block_type, "input_text" | "output_text" | "text")
+            && let Some(text) = block.get("text").and_then(|t| t.as_str())
+        {
+            text_parts.push(text);
         }
     }
 
@@ -262,6 +269,7 @@ pub fn ingest_jsonl_lines(lines: &[String], state: &mut JsonlParserState) -> Vec
 /// We care about lines where type == "assistant". The message.content array
 /// contains blocks; blocks with type == "text" hold the output to validate.
 /// We skip "thinking" blocks, "tool_use" blocks, and "tool_result" blocks.
+#[cfg(test)]
 pub fn extract_assistant_messages(lines: &[String]) -> Vec<AssistantMessage> {
     let mut state = JsonlParserState {
         provider: Some(JsonlProvider::Claude),
@@ -276,6 +284,7 @@ pub fn extract_assistant_messages(lines: &[String]) -> Vec<AssistantMessage> {
 /// `type == "response_item"` and Responses-style payloads. User prompts
 /// arrive as role=user messages; assistant output arrives as role=assistant
 /// messages with `output_text` content blocks.
+#[cfg(test)]
 pub fn extract_codex_messages(lines: &[String], session_id: &str) -> Vec<AssistantMessage> {
     let mut state = JsonlParserState {
         native_session_id: session_id.to_string(),
@@ -322,7 +331,7 @@ pub fn read_new_jsonl(path: &Path, offset: u64) -> std::io::Result<JsonlRead> {
         if bytes_read == 0 {
             break;
         }
-        if !buf.ends_with(&[b'\n']) {
+        if !buf.ends_with(b"\n") {
             break;
         }
 
@@ -339,13 +348,6 @@ pub fn read_new_jsonl(path: &Path, offset: u64) -> std::io::Result<JsonlRead> {
         new_offset,
         reset,
     })
-}
-
-/// Read new lines from a JSONL file starting at the given byte offset.
-/// Returns the new lines and the updated offset.
-pub fn read_new_lines(path: &Path, offset: u64) -> std::io::Result<(Vec<String>, u64)> {
-    let read = read_new_jsonl(path, offset)?;
-    Ok((read.lines, read.new_offset))
 }
 
 /// Ingest newly appended complete JSONL lines from a watched file.

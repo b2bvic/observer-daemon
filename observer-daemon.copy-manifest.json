@@ -1,27 +1,55 @@
 {
-  "source_path": "../../observer-daemon",
-  "generated_timestamp": "2026-07-25T01:34:32.057007Z",
-  "file_count": 24,
+  "source_path": ".",
+  "generated_timestamp": "2026-10-05T21:28:17.296555+00:00",
+  "file_count": 31,
   "files": [
     {
+      "path": ".github/dependabot.yml",
+      "sha256": "3c25a10296b154dd8cb1a5dc0f33c89243bda839f0f1d76c4398a70bf83a04e0"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "f9a30d79db458caa1a4b1032cb77b74169ce732b2f72171da1d3c5a0ffe691f8"
+    },
+    {
       "path": ".gitignore",
-      "sha256": "44c92e3a70ad3307b7056871c2bdb096d8bfa9373f5bf06a79bb6324a20ff2fb"
+      "sha256": "9a7d8d4fdeedac0ba30f55c6f51cbc9160626822af0c9c2f858512784b478682"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "b0ab68f7cc80e08a3a5497c98cc98e4854343fb654a87986a74999d50288e5fc"
     },
     {
       "path": "Cargo.lock",
-      "sha256": "fad4f6b0c9552e6493e03f8e2c95a9f65b6168e5aeab7fd3eb5b66e1f88bbb33"
+      "sha256": "89167a928b5d77acbd2ba496bfba9f81d18a09115a88c7fa70812a7e395eb830"
     },
     {
       "path": "Cargo.toml",
-      "sha256": "9157d0a0678494aa61047ce0a614ea0ce000a39e8ce76af362e562aaaf86c7ca"
+      "sha256": "88ef06adc74cb613cf716d3288ec9e1bf9453f7c5acfbe9b9b9dcbb5d79e2dab"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "d6271cbb3783089756396127fc69bb5febb2999d2e0f81653aa56c42f782819a"
+    },
+    {
+      "path": "README.md",
+      "sha256": "9531acd2a4913560e8155f2de6867d10b5347c8b80d539ff5787553d35a90076"
+    },
+    {
+      "path": "RELEASING.md",
+      "sha256": "0a15edb477c6c631dee186fe5924d22976160fc46541c91be15d8ea7567f7740"
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "5ae60aad1dca2bd9aeb64a2037994f2893a173c25e761f9ceb20ba5e766be8ed"
     },
     {
       "path": "spec.toml.example",
-      "sha256": "39f2529e9a5612660e8a0bd4832b4f3db49ce690859be9ff4b8fbce12764d412"
+      "sha256": "a95f94a94897882b0db2326afe59cba1adff2ec87ce3411a34d20db4b2656432"
     },
     {
       "path": "src/config.rs",
-      "sha256": "3b225fbd50f36a46f8ea6f6138e136239032b00175147b70f4c8505a7ff06a59"
+      "sha256": "4bf0c737de63815d4b2c3c950d292f043d2ec8e456d3e6364b5525af1f72753a"
     },
     {
       "path": "src/corrections.rs",
@@ -29,7 +57,7 @@
     },
     {
       "path": "src/main.rs",
-      "sha256": "60523d89c0011aa2e557e7d35e385c221804bc823bf542fe9455da2f4e786d33"
+      "sha256": "1be23a010303691c54acce08be8192a88d50385b268e2a25a221b1d37d13acbc"
     },
     {
       "path": "src/rubric.rs",
@@ -37,11 +65,11 @@
     },
     {
       "path": "src/session.rs",
-      "sha256": "15593e74adf0788caca3a56ee7cee21099e3e66d33f43f08344693103e7f8cb6"
+      "sha256": "52474dfbfeae548a0a478a75af8bb9862a833d88a96c8fae10beb2268cb46630"
     },
     {
       "path": "src/validator.rs",
-      "sha256": "fc1f0ee632914847f14e4dc8c1d3eb141d320d6d5bf077c1a343df91ba68d43b"
+      "sha256": "7dc778a884bf872a2235c497bed37a140e9716df745086c0195422f1d5625407"
     },
     {
       "path": "src/validators/badverbs.rs",
@@ -65,7 +93,7 @@
     },
     {
       "path": "src/validators/layers.rs",
-      "sha256": "8245d7c32d6b612fd8814b505d35911f4d33581767d779a87871ee61e47e40a1"
+      "sha256": "92ca6e9a314d1b733fff33df601c1a035841d3ba99d307152467919b968e1987"
     },
     {
       "path": "src/validators/lexical.rs",
@@ -89,7 +117,7 @@
     },
     {
       "path": "src/validators/sycophancy.rs",
-      "sha256": "d6db8c1ba812d651a84fd997572c4224241966370162e0c715b3e046906514c9"
+      "sha256": "a635b8adbb3572d229872bda320ad513a340ac7e89c0bf2662edcb4b870d1df9"
     },
     {
       "path": "src/validators/tells.rs",
@@ -97,8 +125,8 @@
     },
     {
       "path": "src/watcher.rs",
-      "sha256": "5b5cb45796556fe0366f63fd995052b27ffa48314ccd83697a692e83760cf6e0"
+      "sha256": "8dc2fbcded390e8bc36fa1aff00bf1247ecd90c3401707b5ed28493a004b0bee"
     }
   ],
-  "scope_note": "Candidate files after release scrub; manifest and allowlist excluded from recursive hashing."
+  "scope_note": "Current candidate branch files after scrub. Manifest and allowlist are listed but excluded from recursive hashing."
 }

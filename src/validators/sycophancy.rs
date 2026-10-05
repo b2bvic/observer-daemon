@@ -41,17 +41,17 @@ pub fn validate(text: &str, config: &SycophancyConfig) -> Vec<Issue> {
 
     // Special case: "you're right" followed by dash + action
     if first_line.starts_with("you're right") || first_line.starts_with("you're correct") {
-        let rest = if first_line.starts_with("you're right") {
-            &first_line[12..]
+        let rest = if let Some(rest) = first_line.strip_prefix("you're right") {
+            rest
         } else {
             &first_line[14..]
         };
 
         if rest.contains('—') || rest.contains(" - ") {
             let after_dash = if rest.contains('—') {
-                rest.split('—').last().unwrap_or("")
+                rest.split('—').next_back().unwrap_or("")
             } else {
-                rest.split(" - ").last().unwrap_or("")
+                rest.rsplit(" - ").next().unwrap_or("")
             };
             if config
                 .correction_exemptions

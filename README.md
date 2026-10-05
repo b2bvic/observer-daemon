@@ -1,14 +1,37 @@
-# observer-daemon
+# AI agent response validation: observer-daemon
 
-You can miss repeated writing-rule violations when you review agent responses by hand. Use observer-daemon to score transcripts and record failures outside the model.
+Observer-daemon scores agent responses against configured writing rules for operators who review hosted-model output.
+It records response violations so repeated failures remain visible across Claude Code and Codex CLI sessions.
 
-Install with Rust and Cargo:
+[Project page](https://scalewithsearch.com/code/observer-daemon)
+
+## Install
+
+Use Rust 1.88 or newer and Cargo on macOS or Linux.
 
 ```bash
-cargo install --git https://github.com/b2bvic/observer-daemon.git --locked
+git clone https://github.com/b2bvic/observer-daemon.git
+cd observer-daemon
+cargo build --locked
 ```
 
-Sample output from `observer-daemon --config spec.toml --validate "The file is ready."` when no rules fail:
+For a reviewed source installation:
+
+```bash
+cargo install --path . --locked
+```
+
+## Quick start
+
+Use a copied spec with isolated ledger paths:
+
+```bash
+mkdir -p .demo
+sed 's|~/.observer/|./.demo/|g' spec.toml.example > .demo/spec.toml
+cargo run --locked -- --config .demo/spec.toml --validate "The file is ready."
+```
+
+The sample text produces this result with the shipped example rules:
 
 ```text
 Class: generic
@@ -16,73 +39,52 @@ Score: 100/100
 No violations.
 ```
 
-Your rules determine the score. Configure `spec.toml` before you run the command. Transcript scoring alone does not block an outbound action.
+One-shot validation reads configured correction patterns. The isolated paths keep this example separate from an existing correction ledger.
 
-## What it does
+## How it works
 
-- **Watches** transcript directories (`watch_paths` in `spec.toml`) with debounce, hot-reloading its spec on file change or SIGHUP.
-- **Classifies** each prompt into a content class before scoring: `legal`, `career_application`, `content_copy`, `technical_build`, `conversational`, or `generic` fallback. Multi-signal prompts resolve by fixed priority. A career-strategy briefing that mentions a compliance role is career material, and the test suite pins that exact case as a named regression.
-- **Scores** the response with the rubric for its class: a stack of deterministic validators (sycophancy, filler, crutch words, punctuation habits, lexical density, rhythm, model tells, policy-pack literals) each deducting from 100. Below `passing_score`, the response fails.
-- **Records** every validation to a JSONL ledger, and every correction to a corrections ledger. Corrections are class-scoped: a rule promoted from legal failures does not silently constrain conversational writing. Records from before class scoping remain valid as `generic`.
+The validator classifies a prompt, selects its writing rubric, and applies configured deterministic checks.
+Claude Code output checks and Codex response quality checks use supported JSONL message records.
+In daemon mode, configured watch paths feed responses to the validator and its JSONL validation ledger.
+Corrections and promoted rules retain their content class.
+This supplies patterns a team can adopt for agent writing rule enforcement after it reviews the rules and action integration.
 
-## Why a daemon and not a prompt
+Configure existing transcript directories before starting the daemon:
 
-You run the same configured writing checks outside each model's prompt. The checks record rule matches and deductions.
-A model upgrade does not change those rules. You must review rules and examples when your requirements change.
-
-## Worked example
-
-Feed it a transcript directory and a spec:
-
-```
-cargo run -- --daemon --config spec.toml
+```bash
+cargo run --locked -- --daemon --config .demo/spec.toml
 ```
 
-Write a response containing "I hope this helps! Let me know if you'd like me to elaborate" into a watched path. The validation ledger records the sycophancy and filler deductions with the exact phrases, the score, and the content class that selected the rubric. Correct it, and the correction ledger holds the before and after as a durable example.
+Edit `watch_paths` in the copied spec first. Starting daemon mode watches those configured locations.
+The daemon reloads the spec after a file change or SIGHUP.
 
-## Configuration
+Run the checks:
 
-`spec.toml.example` documents the full surface: watch paths, debounce, ledger locations, scoring thresholds, and the policy pack (blocked literals and regexes with per-issue deductions). Copy it to `spec.toml` and point the paths at your own transcript locations.
+```bash
+cargo fmt --all -- --check
+cargo test --locked
+cargo clippy --locked --all-targets -- -D warnings
+```
 
-## What a score proves
+## Limits
 
-A score measures the configured writing rules on the text supplied to the validator.
-A score of 100 does not verify facts, completed work, safety, or permission to act.
-A failing score can also flag acceptable quotations or task-specific language. Review such cases before changing the rule.
+- A score measures configured writing rules. It does not verify facts, completed work, or permission to act.
+- Scoring alone does not block an outbound action. Enforce approval in the executing service.
+- Quotations and task-specific language can trigger false matches. Review violations before changing rules.
+- Transcript ingestion supports the implemented Claude and Codex message formats. Event-only Codex exports are not scored.
+- Parser state stays in memory. A restart can replay existing records after the next file change.
+- Use append-only transcripts. Same-inode rewrites can evade truncation detection if they regain their prior length before observation.
+- The Unix metadata adapter supports macOS and Linux. This repository has no verified Windows runtime.
 
-Use separate checks for separate claims:
+See [Build a macOS release](RELEASING.md) for packaging.
 
-| Claim | Evidence you need |
-|---|---|
-| The response follows your writing rules | The response, configuration, score, and matched rules. |
-| A file contains the expected result | The actual file and a content or hash check. |
-| The tested source is installed | Matching source revisions or installed file hashes. |
-| An external action succeeds | A result from the destination system. |
-| An action is authorized | Approval enforced where the action executes. |
+## Related repositories
 
-The [completion-check skill](https://github.com/b2bvic/skills) checks declared local artifacts and source revisions.
-It does not verify external outcomes or grant action approval.
+- [agent-oversight](https://github.com/b2bvic/agent-oversight): orchestration cluster and evaluation guide.
+- [skills](https://github.com/b2bvic/skills): quality threshold and local artifact checks.
+- [observer-protocol](https://github.com/b2bvic/observer-protocol): Markdown intake and local review records.
+- [session-ledger](https://github.com/b2bvic/session-ledger): searchable transcript archive.
 
-## Compatibility and regression checks
+## License
 
-The one-shot validator accepts text independently of the model that produces it.
-Native transcript ingestion depends on the transcript format and watcher configuration.
-The daemon detects Claude Code and Codex records from JSONL content, including renamed and archived exports in configured watch paths.
-Each file retains its user prompt, working directory, and session identifier across read batches and configuration reloads.
-Codex identifiers come from `session_meta.payload.id` when present. Otherwise, the filename supplies a fallback.
-Incomplete final lines wait for a newline. Detected truncation or file replacement resets that file's parser state.
-Use append-only files. Same-inode rewrites that reach the previous length before observation can evade truncation detection.
-Only supported message records produce scores. Codex `event_msg` mirrors do not produce duplicate scores; event-only exports are not scored.
-Parser state is in memory. A daemon restart can replay existing records when a file next changes.
-
-Run `cargo test --locked` for the synthetic regression suite.
-These tests check implementation behavior. They do not measure model quality or guarantee support for future transcript schemas.
-See the [stack evaluation guide](https://github.com/b2bvic/agent-oversight/blob/main/EVALUATION.md) before comparing model versions.
-
-## How this was built
-
-Specification, taxonomy, priorities, and the behavioral standard: human judgment, mine. Implementation: AI models executing that specification under a build contract with an adversarial audit before publish. The correction-ledger design ships here; my personal correction content does not. All fixtures are synthetic.
-
-## Principles
-
-Part of a larger system: this repository proves **P11 (voice is a written standard)** and **P17 (the system learns through correction)** from the [Seventeen Principles](https://victorvalentineromo.com/principles). The written standard itself is documented in [observer-protocol](https://github.com/b2bvic/observer-protocol).
+[MIT](LICENSE).

@@ -2,7 +2,9 @@
 name = "observer-daemon"
 version = "0.1.1"
 edition = "2024"
-description = "Behavioral validator daemon for Observer Protocol"
+rust-version = "1.88"
+license = "MIT"
+description = "Score agent responses against configured writing rules. Inspect Claude Code and Codex transcripts and record response violations."
 authors = ["Victor Valentine Romo <victor@scalewithsearch.com>"]
 
 [dependencies]

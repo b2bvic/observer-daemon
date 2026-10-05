@@ -1,9 +1,15 @@
+.github/dependabot.yml
+.github/workflows/ci.yml
 .gitignore
+CONTRIBUTING.md
 Cargo.lock
 Cargo.toml
-observer-daemon.copy-manifest.json
+LICENSE
 PUBLISH-ALLOWLIST.txt
 README.md
+RELEASING.md
+SECURITY.md
+observer-daemon.copy-manifest.json
 spec.toml.example
 src/config.rs
 src/corrections.rs
