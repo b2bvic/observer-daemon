@@ -13,7 +13,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 regex = "1"
 aho-corasick = "1"
-notify = "7"
+notify = "8"
 chrono = { version = "0.4", features = ["serde"] }
 signal-hook = "0.3"
 log = "0.4"
